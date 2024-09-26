@@ -32,13 +32,13 @@ const ShopCategory = (props) => {
   }, [allproducts]); 
   
   const itemsPerPage = 8; 
-  const pageCount = Math.ceil(allproducts.length / itemsPerPage) +5;
+  const pageCount = Math.ceil(allproducts.length / itemsPerPage);
   let startIndexShow = 0;
   const handlePageChange = (selectedPage) => {
     let startIndex = selectedPage.selected * itemsPerPage;
     startIndexShow = startIndex;
     const endIndex = startIndex + itemsPerPage > allproducts.length ? allproducts.length : startIndex + itemsPerPage;
-    
+    setCurrentData([])
     setCurrentData(allproducts.slice(startIndex, endIndex));
   };
 
@@ -63,6 +63,8 @@ const ShopCategory = (props) => {
         renderOnZeroPageCount={null}
         containerClassName="pagination"
         pageClassName="page-item"
+        pageRangeDisplayed={3}
+        marginPagesDisplayed={1}
         pageLinkClassName="page-link"
         previousClassName="page-item"
         previousLinkClassName="page-link"
@@ -81,7 +83,7 @@ const ShopCategory = (props) => {
               return (
                 <Item
                   delay={i * 200}
-                  id={item.id}
+                  id={item._id}
                   key={i}
                   name={item.name}
                   image={item.image}

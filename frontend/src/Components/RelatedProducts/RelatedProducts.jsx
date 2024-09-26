@@ -20,13 +20,13 @@ const RelatedProducts = ({category,id}) => {
   },[])
 
   return (
-    <div className='relatedproducts'>
-      <h1>Related Products</h1>
-      <hr />
-      <div className="relatedproducts-item">
+    <div className='relatedproducts w-[80%] m-auto my-6'>
+      <h1 className='text-[30px] w-full text-center font-bold'>Related Products</h1>
+      <hr className='rounded-lg w-[120px] h-[3px] bg-black m-auto mt-4 mb-8'/>
+      <div className="relatedproducts-item grid grid-cols-4 gap-4">
         {related.map((item,index)=>{
           if (id !== item.id) {
-            return <Item key={index} id={item.id} name={item.name} image={item.image}  new_price={item.new_price} old_price={item.old_price}/>
+            return <Item key={index} id={item._id} name={item.name} image={item.image}  new_price={item.new_price} old_price={item.old_price}/>
           }
         })}
       </div>
