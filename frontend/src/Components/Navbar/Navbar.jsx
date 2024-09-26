@@ -10,7 +10,7 @@ const Navbar = () => {
 
   let [menu,setMenu] = useState(localStorage.getItem("menu") ? localStorage.getItem("menu"): "shop");
   const {getTotalCartItems} = useContext(ShopContext);
-
+ 
   const menuRef = useRef();
 
   const dropdown_toggle = (e) => {

@@ -76,7 +76,7 @@ const ShopCategory = (props) => {
           Sort by <img src={dropdown_icon} alt="" />
         </div>
       </div>
-      <div className="shopcategory-products grid grid-cols-4 gap-x-4 gap-y-5 w-">
+      <div className="shopcategory-products grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-5 w-">
         {currentData.length === 0
           ? ""
           : currentData.map((item, i) => {

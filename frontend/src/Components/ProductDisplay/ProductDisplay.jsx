@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./ProductDisplay.css";
 import star_icon from "../Assets/star_icon.png";
 import star_dull_icon from "../Assets/star_dull_icon.png";
@@ -8,7 +8,9 @@ import { currency } from "../../App";
 const ProductDisplay = ({ product }) => {
   const { addToCart } = useContext(ShopContext);
   const [ imgDisplay, setImgDisplay ] = useState(product.image[0])
-  console.log(imgDisplay)
+  useEffect(()=> {
+    setImgDisplay(product.image[0]);
+  },[product])
   return (
     <div className="productdisplay">
       <div className="productdisplay-left">
@@ -65,7 +67,7 @@ const ProductDisplay = ({ product }) => {
             <div>XXL</div>
           </div>
         </div>
-        <button className="rounded-lg hover:bg-[#EB423F]/80 hover:text-white transition duration-200" onClick={() => addToCart(product.id)}>ADD TO CART</button>
+        <button className="rounded-lg hover:bg-[#EB423F]/80 hover:text-white transition duration-200" onClick={() => addToCart(product._id)}>ADD TO CART</button>
         <p className="productdisplay-right-category">
           <span>Category :</span> Women, T-shirt, Crop Top
         </p>

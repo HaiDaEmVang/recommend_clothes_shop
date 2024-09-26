@@ -181,9 +181,7 @@ app.post('/signup', async (req, res) => {
     return res.status(400).json({ success: success, errors: "existing user found with this email" });
   }
   let cart = {};
-  for (let i = 0; i < 300; i++) {
-    cart[i] = 0;
-  }
+  cart[1] = 0;
   const user = new Users({
     name: req.body.username,
     email: req.body.email,
@@ -244,7 +242,9 @@ app.post("/relatedproducts", async (req, res) => {
 app.post('/addtocart', fetchuser, async (req, res) => {
   console.log("Add Cart");
   let userData = await Users.findOne({ _id: req.user.id });
-  userData.cartData[req.body.itemId] += 1;
+  if(isNaN(userData.cartData[req.body.itemId])) 
+    userData.cartData[req.body.itemId] = 1;
+  else userData.cartData[req.body.itemId]++;
   await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
   res.send("Added")
 })

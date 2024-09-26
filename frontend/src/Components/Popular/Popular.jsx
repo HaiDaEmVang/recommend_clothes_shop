@@ -4,14 +4,14 @@ import Item from "../Item/Item.jsx";
 
 const Popular = (props) => {
   return (
-    <div className="popular w-[80%]">
+    <div className="popular w-[80%] m-auto">
       <h1>POPULAR IN WOMEN</h1>
       <hr />
       {props.data.length === 0 ? (
         ""
       ) : (
-        <div className="grid grid-cols-3 gap-x-6 gap-y-2">
-          <div className="col-span-2 row-span-2 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-3 lg:grid-cols-3 lg:gap-x-6 lg:gap-y-2">
+          <div className="lg:col-span-2 lg:row-span-2 ">
             <Item
               classs={"h-full w-full"}
               id={props.data[0]._id}
@@ -22,7 +22,7 @@ const Popular = (props) => {
             />
           </div>
 
-          <div className="col-span-1 row-span-1">
+          <div className="lg:col-span-1 lg:row-span-1">
             <Item
             classs={"h-full w-full"}
               id={props.data[1]._id}
@@ -33,7 +33,7 @@ const Popular = (props) => {
             />
           </div>
 
-          <div className="col-span-1 row-span-1">
+          <div className="lg:col-span-1 lg:row-span-1">
             <Item
             classs={"h-full w-full"}
               id={props.data[2]._id}

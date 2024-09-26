@@ -9,9 +9,10 @@ const ShopContextProvider = (props) => {
 
   const getDefaultCart = () => {
     let cart = {};
-    for (let i = 0; i < 300; i++) {
-      cart[i] = 0;
-    }
+    // for (let i = 0; i < 300; i++) {
+    //   cart[i] = 0;
+    // }
+    cart[1]=0;
     return cart;
   };
 
@@ -39,27 +40,29 @@ const ShopContextProvider = (props) => {
 
   const getTotalCartAmount = () => {
     let totalAmount = 0;
-    for (const item in cartItems) {
+    const keys = Object.keys(cartItems);
+    keys.forEach(item => {
       if (cartItems[item] > 0) {
         try {
-          let itemInfo = products.find((product) => product.id === Number(item));
+          let itemInfo = products.find((product) => product._id === item);
            totalAmount += cartItems[item] * itemInfo.new_price;
         } catch (error) {}
       }
-    }
+    }); 
     return totalAmount;
   };
 
   const getTotalCartItems = () => {
     let totalItem = 0;
-    for (const item in cartItems) {
+    const keys = Object.keys(cartItems);
+    keys.forEach(item => {
       if (cartItems[item] > 0) {
         try {
-          let itemInfo = products.find((product) => product.id === Number(item));
-          totalItem += itemInfo ? cartItems[item] : 0 ;
+          let itemInfo = products.find((product) => product._id === item);
+          totalItem += itemInfo ? 1 : 0 ;
         } catch (error) {}
       }
-    }
+    }); 
     return totalItem;
   };
 
@@ -69,6 +72,7 @@ const ShopContextProvider = (props) => {
       return;
     }
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+    console.log(cartItems)
     if (localStorage.getItem("auth-token")) {
       fetch(`${backend_url}/addtocart`, {
         method: 'POST',
