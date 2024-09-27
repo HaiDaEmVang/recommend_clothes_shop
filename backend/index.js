@@ -100,11 +100,11 @@ const Users = mongoose.model("Users", {
 
 // Schema for creating Product
 const Product = mongoose.model("Product", {
-  // id: { type: Number, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: [String],
-  category: { type: String, required: true },
+  sex: { type: String, required: true },
+  category: { type: String, require: true },
   new_price: { type: Number },
   old_price: { type: Number },
   date: { type: Date, default: Date.now },
@@ -204,7 +204,7 @@ app.post('/signup', async (req, res) => {
 // endpoint for getting all products data
 app.get("/allproducts/:type", async (req, res) => {
   let type = req.params.type;
-  let products = (type !== "all" ? await Product.find({ category: type}) : await Product.find());
+  let products = (type !== "all" ? await Product.find({ sex: type}) : await Product.find());
   console.log("All Products");
   res.send(products);
 });
@@ -222,7 +222,7 @@ app.get("/newcollections", async (req, res) => {
 
 // endpoint for getting womens products data
 app.get("/popularinwomen", async (req, res) => {
-  let products = await Product.find({ category: "FEMALE" });
+  let products = await Product.find({ sex: "FEMALE" });
   let arr = products.splice(0, 4);
   console.log("Popular In Women");
   res.send(arr);
@@ -273,19 +273,11 @@ app.post('/getcart', fetchuser, async (req, res) => {
 
 // Create an endpoint for adding products using admin panel
 app.post("/addproduct", async (req, res) => {
-  // let products = await Product.find({});
-  // let id;
-  // if (products.length > 0) {
-  //   let last_product_array = products.slice(-1);
-  //   let last_product = last_product_array[0];
-  //   id = last_product.id + 1;
-  // }
-  // else { id = 1; }
   const product = new Product({
-    // id: id,
     name: req.body.name,
     description: req.body.description,
     image: req.body.image,
+    sex: req.body.sex,
     category: req.body.category,
     new_price: req.body.new_price,
     old_price: req.body.old_price,
