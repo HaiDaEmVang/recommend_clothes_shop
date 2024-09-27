@@ -33,7 +33,7 @@ export const ShopSuggest = () => {
             </div>
           </div>
           <div className="overflow-y-auto overflow-x-hidden p-2 h-[474px]">
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-4" data-aos-offset="-10">
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-4" data-aos-offset="10">
               {products.map((item, i) => {
                 return (
                   <Item 

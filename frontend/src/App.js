@@ -25,8 +25,8 @@ export const currency = '$';
 function App() {
   useEffect(() => {
     AOS.init({
-      offset: 0,
-      duration: 600,
+      offset: 10,
+      duration: 500,
       easing: "ease-in-sine",
       // delay: 100,
     });

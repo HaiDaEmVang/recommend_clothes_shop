@@ -6,12 +6,12 @@ import Item from "../Components/Item/Item";
 import { Link } from "react-router-dom";
 import { backend_url } from "../App";
 import ReactPaginate from 'react-paginate';
-import Aos from "aos";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const ShopCategory = (props) => {
   const [allproducts, setAllProducts] = useState([]);
   const [currentData, setCurrentData] = useState([]);
+  const [indexShow, setIndexShow]= useState(0);
 
 
   const fetchInfo = () => {
@@ -33,15 +33,13 @@ const ShopCategory = (props) => {
   
   const itemsPerPage = 8; 
   const pageCount = Math.ceil(allproducts.length / itemsPerPage);
-  let startIndexShow = 0;
   const handlePageChange = (selectedPage) => {
-    let startIndex = selectedPage.selected * itemsPerPage;
-    startIndexShow = startIndex;
-    const endIndex = startIndex + itemsPerPage > allproducts.length ? allproducts.length : startIndex + itemsPerPage;
     setCurrentData([])
+    let startIndex = selectedPage.selected * itemsPerPage;
+    setIndexShow(startIndex);
+    const endIndex = startIndex + itemsPerPage > allproducts.length ? allproducts.length : startIndex + itemsPerPage;
     setCurrentData(allproducts.slice(startIndex, endIndex));
   };
-
 
   
 
@@ -51,7 +49,7 @@ const ShopCategory = (props) => {
       <div className="shopcategory-indexSort flex items-center">
         <p>
           <span>
-            Showing {startIndexShow +1 } - {startIndexShow + 8}
+            Showing {indexShow + 1 } - {indexShow + 8}
           </span>{" "}
           out of {allproducts.length} Products
         </p>
