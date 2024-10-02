@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { FiChevronsLeft } from "react-icons/fi";
 import ReactPaginate from 'react-paginate';
-import "./CSS/ShopCategory.css";
-import { backend_url } from "../App";
-import './CSS/Pagination.css'; 
 import Item from "../Components/Item/Item";
+import { backend_url } from "../App";
+import "./CSS/ShopCategory.css";
+import './CSS/Pagination.css'; 
 
 const ShopCategory = (props) => {
   const [allproducts, setAllProducts] = useState([]);

@@ -12,9 +12,6 @@ app.use(cors());
 // Database Connection With MongoDB
 mongoose.connect("mongodb+srv://admin:admin@cluster0.3ewmz.mongodb.net/");
 
-// paste your mongoDB Connection string above with password
-// password should not contain '@' special character
-
 
 // //Image Storage Engine 
 // const storage = multer.diskStorage({
@@ -32,17 +29,17 @@ mongoose.connect("mongodb+srv://admin:admin@cluster0.3ewmz.mongodb.net/");
 // })
 
 
-// // Route for Images folder
+// Route for Images folder
 const { S3Client } = require('@aws-sdk/client-s3');
 const { Upload } = require('@aws-sdk/lib-storage');
 const multerS3 = require('multer-s3');
 require('dotenv').config();
 // Cấu hình AWS SDK
 const s3Client = new S3Client({
-  region: 'ap-southeast-1',
+  region: 'ap-southeast-2',
   credentials: {
-    accessKeyId: 'AKIATQPD7RMXB55AWZ5C',
-    secretAccessKey: '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',
+    accessKeyId: 'AKIAW3MEDAWUXH5ULTFP',
+    secretAccessKey: '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',
   },
 });
 
@@ -50,7 +47,7 @@ const s3Client = new S3Client({
 const upload = multer({
   storage: multerS3({
     s3: s3Client,
-    bucket: 'shopclothes',
+    bucket: 'imageshop',
     acl: 'public-read',
     metadata: (req, file, cb) => {
       cb(null, { fieldName: file.fieldname });
@@ -60,7 +57,6 @@ const upload = multer({
     }
   })
 });
-// 
 
 // Định nghĩa endpoint upload
 app.post('/upload', upload.array('product', 10), (req, res) => {
@@ -70,6 +66,50 @@ app.post('/upload', upload.array('product', 10), (req, res) => {
     image_url: req.files.map(image => image.location)
   });
 });
+
+// const firebase = require('./firebase')
+
+
+// const upload = multer({
+//   storage: multer.memoryStorage()
+// })
+
+// app.post('/upload', upload.array('product', 10), (req, res) => {
+ 
+//   if(!req.files) {
+//       return res.status(400).send("Error: No files found")
+//   } 
+
+//   const uploadPromises = req.files.map(file => {
+//     const fileName = `${path.parse(file.originalname).name}_${Date.now().toString()}${path.extname(file.originalname)}`;
+//     const blob = firebase.bucket.file(fileName);
+
+//     const blobWriter = blob.createWriteStream({
+//         metadata: {
+//             contentType: file.mimetype
+//         }
+//     });
+
+//     return new Promise((resolve, reject) => {
+//         blobWriter.on('error', (err) => {
+//             console.log(err);
+//             reject(err);
+//         });
+
+//         blobWriter.on('finish', () => {
+//             resolve(fileName);
+//         });
+
+//         blobWriter.end(file.buffer);
+//     });
+// })
+
+//     console.log(uploadPromises)
+// })
+
+
+
+
 
 
 // MiddleWare to fetch user from token
@@ -110,6 +150,11 @@ const Product = mongoose.model("Product", {
   date: { type: Date, default: Date.now },
   avilable: { type: Boolean, default: true },
 });
+
+// Schema for creating Category
+const Category = mongoose.model("Categorys", {
+  title: { type: String , required: true}
+})
 
 
 

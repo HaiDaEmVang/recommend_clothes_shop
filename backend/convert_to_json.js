@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Đọc tệp Excel
-const workbook = XLSX.readFile(path.join(__dirname, '../../../../data.xlsx'));
+const workbook = XLSX.readFile(path.join(__dirname, '../../../../VougeVibe.xlsx'));
 
 // Lấy tên các sheet trong workbook
 const sheetNames = workbook.SheetNames;
