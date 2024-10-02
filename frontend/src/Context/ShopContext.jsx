@@ -9,9 +9,6 @@ const ShopContextProvider = (props) => {
 
   const getDefaultCart = () => {
     let cart = {};
-    // for (let i = 0; i < 300; i++) {
-    //   cart[i] = 0;
-    // }
     cart[1]=0;
     return cart;
   };
@@ -21,7 +18,7 @@ const ShopContextProvider = (props) => {
   useEffect(() => {
     fetch(`${backend_url}/allproducts/all`)
       .then((res) => res.json())
-      .then((data) => setProducts(data))
+      .then((data) =>  setProducts(data));
 
     if (localStorage.getItem("auth-token")) {
       fetch(`${backend_url}/getcart`, {

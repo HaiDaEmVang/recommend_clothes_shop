@@ -15,6 +15,7 @@ const ListProduct = () => {
   const [category, setCategory] = useState("Full products");
 
   const itemsPerPage = 8;
+  
 
   const fetchProducts = async () => {
     try {

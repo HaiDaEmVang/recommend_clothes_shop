@@ -7,39 +7,47 @@ import Item from "../Components/Item/Item";
 import { backend_url } from "../App";
 import "./CSS/ShopCategory.css";
 import './CSS/Pagination.css'; 
+import { useCallback } from "react";
 
 const ShopCategory = (props) => {
-  const [allproducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [currentData, setCurrentData] = useState([]);
+  const [currentDataView, setCurrentDataView] = useState([]);
   const [indexShow, setIndexShow]= useState(0);
   const [category, setCategory] = useState("Full products");
 
+  const itemsPerPage = 8;
 
-  const fetchInfo = () => {
-    fetch(`${backend_url}/allproducts/${props.category}`)
-      .then((res) => res.json())
-      .then((data) => setAllProducts(data));
-  };
-
-  useEffect(() => {
-    setAllProducts([]);
-    fetchInfo();
-  }, [props.category]);
-  useEffect(() => {
-    setCurrentData([])
-    if (allproducts.length > 0) {
-      setCurrentData(allproducts.slice(0, itemsPerPage)); 
+  const fetchInfo = useCallback(async () => {
+    try {
+      const res = await fetch(`${backend_url}/allproducts/${props.gender}`);
+      if (!res.ok) {
+        throw new Error("API did not respond");
+      }
+      const data = await res.json();
+      setProducts(data);
+      // setError(null); // Reset lỗi nếu thành công
+    } catch (err) {
+      // setError(err.message); // Lưu thông điệp lỗi
     }
-  }, [allproducts]); 
+  }, [props.gender]);
+
+  useEffect(() => {
+    fetchInfo();
+  }, [fetchInfo]);
+
+  useEffect(() => {
+    let datafilter =  products.filter(item => category === "Full products" ? true : item.category === category)
+    setCurrentData(datafilter)
+    setCurrentDataView(datafilter.slice(0, itemsPerPage));
+  }, [category, products]); 
   
-  const itemsPerPage = 8; 
-  const pageCount = Math.ceil(allproducts.length / itemsPerPage);
+   
   const handlePageChange = (selectedPage) => {
-    setCurrentData([])
     let startIndex = selectedPage.selected * itemsPerPage;
     setIndexShow(startIndex);
-    const endIndex = startIndex + itemsPerPage > allproducts.length ? allproducts.length : startIndex + itemsPerPage;
-    setCurrentData(allproducts.slice(startIndex, endIndex));
+    const endIndex = Math.min(products.length, startIndex + itemsPerPage);
+    setCurrentDataView(products.slice(startIndex, endIndex));
   };
 
   
@@ -50,14 +58,14 @@ const ShopCategory = (props) => {
       <div className="shopcategory-indexSort flex items-center">
         <p>
           <span>
-            Showing {indexShow + 1 } - {indexShow + 8}
+            Showing {indexShow + 1 } - {Math.min(products.length, indexShow + itemsPerPage)}
           </span>{" "}
-          out of {allproducts.length} Products
+          out of {currentData.length} Products
         </p>
         <ReactPaginate
         nextLabel={<FaChevronRight />} // Thay thế bằng icon
         onPageChange={handlePageChange}
-        pageCount={pageCount}
+        pageCount={Math.ceil(products.length / itemsPerPage)}
         previousLabel={<FaChevronLeft />} // Thay thế bằng icon
         renderOnZeroPageCount={null}
         containerClassName="pagination"
@@ -75,24 +83,20 @@ const ShopCategory = (props) => {
           <p className="group-hover:text-white">{category}</p>
           <FiChevronsLeft className="ml-3 group-hover:-rotate-90 transition-all duration-200 text-lg group-hover:text-white" />
 
-          <div className="absolute left-0 right-0 top-full p-2 rounded-lg mt-1 bg-white shadow-xl overflow-hidden hidden group-hover:block">
+          <div className="absolute left-0 right-0 top-full p-2 rounded-lg mt-1 bg-white shadow-xl overflow-hidden hidden group-hover:block z-30">
             <ul>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Full products")}>Full products</li>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Bag")}>Bag</li>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Shoes")}>Shoes</li>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Shirt")}>Shirt</li>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Watch")}>Watch</li>
-              <li className="w-full px-4 py-1 hover:bg-gray-300 rounded-md mb-1" onClick={()=> setCategory("Pants")}>Pants</li>
+              {["Full products", "BAG", "SHOES", "SHIRT", "HEADWEAR", "PANTS"].map((item, index) => (
+                 <li key={index} className={`w-full px-4 py-1 hover:bg-gray-400 rounded-md mb-1 ${category === item ? "bg-gray-300": ""}`} onClick={()=> setCategory(item)}>{item}</li>  
+              ))}
             </ul>
           </div>
         </div>
       </div>
-      <div className="shopcategory-products grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-5 w-">
-        {currentData.filter(item =>  (category === "Full products" ?  true : item.category === category)).length === 0
-          ? ""
-          : currentData.map((item, i) => {
+      <div className="shopcategory-products grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-5 ">
+        {currentDataView.map((item, i) => {
               return (
                 <Item
+                  classs={"max-h-[450px]"}
                   delay={i * 200}
                   id={item._id}
                   key={i}

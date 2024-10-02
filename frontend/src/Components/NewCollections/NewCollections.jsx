@@ -9,7 +9,7 @@ const NewCollections = (props) => {
       <hr className='m-auto w-[200px] h-[4px] rounded-lg bg-black mt-2 mb-5'/>
       <div className="collections grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 grid-rows-2 gap-4">
         {props.data.map((item,index)=>{
-                return <Item classs={" w-full"} id={item._id} key={index} name={item.name} image={item.image}  new_price={item.new_price} old_price={item.old_price}/>
+                return <Item classs={" w-full max-h-[450px]"} id={item._id} key={index} name={item.name} image={item.image}  new_price={item.new_price} old_price={item.old_price}/>
             })}
       </div>
     </div>

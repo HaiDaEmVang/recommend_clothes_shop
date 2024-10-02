@@ -3,7 +3,7 @@ import './RelatedProducts.css'
 import Item from '../Item/Item'
 import { backend_url } from '../../App';
 
-const RelatedProducts = ({category,id}) => {
+const RelatedProducts = ({category,id, gender}) => {
 
   const [related,setRelated] = useState([]);
 
@@ -14,7 +14,7 @@ const RelatedProducts = ({category,id}) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({category:category}),
+      body: JSON.stringify({category:category, sex:gender}),
       })
     .then((res)=>res.json()).then((data)=>setRelated(data))
   },[])

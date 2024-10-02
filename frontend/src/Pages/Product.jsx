@@ -14,13 +14,13 @@ const Product = () => {
   useEffect(()=>{
     setProduct(products.find((e)=>e._id === productId))
   },[products,productId])
-
+  {console.log(products)}
   return product ? (
     <div>
       <Breadcrums product={product}/>
       <ProductDisplay product={product}/>
       <DescriptionBox/>
-      <RelatedProducts id={product._id} category={product.category}/>
+      <RelatedProducts id={product._id} category={product.category} gender={product.sex}/>
     </div>
   ) : null
 }

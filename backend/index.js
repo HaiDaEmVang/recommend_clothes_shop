@@ -248,9 +248,9 @@ app.post('/signup', async (req, res) => {
 
 // endpoint for getting all products data
 app.get("/allproducts/:type", async (req, res) => {
-  let type = req.params.type;
-  let products = (type !== "all" ? await Product.find({ sex: type}) : await Product.find());
-  console.log("All Products");
+  let type = req.params.type.toUpperCase();
+  let products = (type !== "ALL" ? await Product.find({ sex: type }) : await Product.find());
+  console.log("All Products " + type);
   res.send(products);
 });
 
@@ -264,7 +264,7 @@ app.get("/newcollections", async (req, res) => {
   res.send(arr);
 });
 
-
+ 
 // endpoint for getting womens products data
 app.get("/popularinwomen", async (req, res) => {
   let products = await Product.find({ sex: "FEMALE" });
@@ -276,8 +276,8 @@ app.get("/popularinwomen", async (req, res) => {
 // endpoint for getting womens products data
 app.post("/relatedproducts", async (req, res) => {
   console.log("Related Products");
-  const {category} = req.body;
-  const products = await Product.find({ category });
+  const {category, sex} = req.body;
+  const products = await Product.find({ category, sex });
   const arr = products.slice(0, 4);
   res.send(arr);
 });
