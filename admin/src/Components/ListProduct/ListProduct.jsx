@@ -3,8 +3,8 @@ import "./ListProduct.css";
 import "./Pagination.css";
 import cross_icon from "../Assets/cross_icon.png";
 import { backend_url, currency } from "../../App";
-import { FiChevronsLeft } from "react-icons/fi";
 import ReactPaginate from "react-paginate";
+import { FiChevronsLeft } from "react-icons/fi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const ListProduct = () => {
@@ -74,6 +74,8 @@ const ListProduct = () => {
           onPageChange={handlePageChange}
           pageCount={Math.ceil(currentData.length / itemsPerPage)}
           previousLabel={<FaChevronLeft />}
+          pageRangeDisplayed={3}
+          marginPagesDisplayed={1}
           containerClassName="pagination"
           pageClassName="page-item"
           pageLinkClassName="page-link"

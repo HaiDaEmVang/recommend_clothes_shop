@@ -1,9 +1,15 @@
-import React from "react";
+import React, { memo } from "react";
 import "./Item.css";
 import { Link } from "react-router-dom";
 import { currency } from "../../App";
 
-const Item = (props) => {
+const Item = memo((props) => {
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
   return (
     <div
       data-aos="fade-up"
@@ -11,9 +17,10 @@ const Item = (props) => {
       data-aos-offset={props.offset}
       className={`item group shadow-xl rounded-xl p-2 cursor-pointer group ${props.classs}`}
     >
-      <Link className="flex flex-col h-full" to={"/product/" + props.id}>
+      <Link className="flex flex-col h-full duration-200 transition-all"  to={"/product/" + props.id} onClick={()=> handleScrollToTop()}>
         <div className="rounded-md overflow-hidden h-full w-full">
           <img
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-110 transition-all duration-200"
             onClick={window.scrollTo(0, 0)}
             src={props.image[0]}
@@ -34,6 +41,6 @@ const Item = (props) => {
       </Link>
     </div>
   );
-};
+});
 
 export default Item;

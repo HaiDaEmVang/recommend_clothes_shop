@@ -8,6 +8,7 @@ import { backend_url } from "../App";
 import "./CSS/ShopCategory.css";
 import './CSS/Pagination.css'; 
 import { useCallback } from "react";
+import Aos from "aos";
 
 const ShopCategory = (props) => {
   const [products, setProducts] = useState([]);
@@ -48,6 +49,7 @@ const ShopCategory = (props) => {
     setIndexShow(startIndex);
     const endIndex = Math.min(products.length, startIndex + itemsPerPage);
     setCurrentDataView(products.slice(startIndex, endIndex));
+    Aos.refresh();
   };
 
   

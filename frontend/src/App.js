@@ -24,11 +24,12 @@ export const currency = '$';
 function App() {
   useEffect(() => {
     AOS.init({
-      offset: 10,
+      // offset: 500,
       duration: 500,
       easing: "ease-in-sine",
-      // delay: 100,
+      delay: 0,
     });
+    AOS.refresh();
 
   }, []);
 

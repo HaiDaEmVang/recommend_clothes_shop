@@ -5,6 +5,7 @@ import DescriptionBox from '../Components/DescriptionBox/DescriptionBox'
 import RelatedProducts from '../Components/RelatedProducts/RelatedProducts'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../Context/ShopContext'
+import Aos from 'aos'
 
 const Product = () => {
   const {products} = useContext(ShopContext);
@@ -13,8 +14,9 @@ const Product = () => {
 
   useEffect(()=>{
     setProduct(products.find((e)=>e._id === productId))
+    Aos.init();
+    Aos.refresh();
   },[products,productId])
-  {console.log(products)}
   return product ? (
     <div>
       <Breadcrums product={product}/>
