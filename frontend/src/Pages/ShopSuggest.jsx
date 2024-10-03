@@ -29,7 +29,7 @@ export const ShopSuggest = () => {
       <div className="flex justify-center h-[560px] mt-7 mx-24">
         <Camera show={showCam} />
         <div
-          className={`w-1/1 ml-10 transition-all duration-700 rounded-2xl shadow-2xl py-4 px-5 overflow-hidden ${showCam ? "w-1/2" : "w-1/1"} ${currentData.length <=0 ? " ": "w-full"}`}
+          className={`w-1/1 ml-10 transition-all duration-700 rounded-2xl shadow-2xl py-4 px-5 overflow-hidden  ${currentData.length <=0 ? showCam ? "w-1/2" : "w-1/1" : "w-full"}`}
         >
           <div className="flex items-center justify-between">
             <h1 className={`text-xl font-poppins text-[#626262] border-b-[3px] border-[#FF4141] inline-block mb-3 pb-2 `}>
