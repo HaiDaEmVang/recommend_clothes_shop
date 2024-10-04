@@ -38,8 +38,8 @@ mongoose.connect("mongodb+srv://admin:admin@cluster0.3ewmz.mongodb.net/");
 // const s3Client = new S3Client({
 //   region: 'ap-southeast-2',
 //   credentials: {
-//     accessKeyId: 'AKIAW3MEDAWUXH5ULTFP',
-//     secretAccessKey: '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',
+//     accessKeyId: '',
+//     secretAccessKey: ,
 //   },
 // });
 
