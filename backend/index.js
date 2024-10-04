@@ -29,83 +29,95 @@ mongoose.connect("mongodb+srv://admin:admin@cluster0.3ewmz.mongodb.net/");
 // })
 
 
-// Route for Images folder
-const { S3Client } = require('@aws-sdk/client-s3');
-const { Upload } = require('@aws-sdk/lib-storage');
-const multerS3 = require('multer-s3');
-require('dotenv').config();
-// Cấu hình AWS SDK
-const s3Client = new S3Client({
-  region: 'ap-southeast-2',
-  credentials: {
-    accessKeyId: 'AKIAW3MEDAWUXH5ULTFP',
-    secretAccessKey: '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',
-  },
-});
+// // Route for Images folder
+// const { S3Client } = require('@aws-sdk/client-s3');
+// const { Upload } = require('@aws-sdk/lib-storage');
+// const multerS3 = require('multer-s3');
+// require('dotenv').config();
+// // Cấu hình AWS SDK
+// const s3Client = new S3Client({
+//   region: 'ap-southeast-2',
+//   credentials: {
+//     accessKeyId: 'AKIAW3MEDAWUXH5ULTFP',
+//     secretAccessKey: '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',
+//   },
+// });
 
-// Cấu hình multer với multer-s3
-const upload = multer({
-  storage: multerS3({
-    s3: s3Client,
-    bucket: 'imageshop',
-    acl: 'public-read',
-    metadata: (req, file, cb) => {
-      cb(null, { fieldName: file.fieldname });
-    }, 
-    key: (req, file, cb) => {
-      cb(null, path.parse(file.originalname).name + "_" +Date.now().toString()  + path.extname(file.originalname));
-    }
-  })
-});
-
-// Định nghĩa endpoint upload
-app.post('/upload', upload.array('product', 10), (req, res) => {
-  console.log("uploadImage");
-  res.json({
-    success: 1,
-    image_url: req.files.map(image => image.location)
-  });
-});
-
-// const firebase = require('./firebase')
-
-
+// // Cấu hình multer với multer-s3
 // const upload = multer({
-//   storage: multer.memoryStorage()
-// })
+//   storage: multerS3({
+//     s3: s3Client,
+//     bucket: 'imageshop',
+//     acl: 'public-read',
+//     metadata: (req, file, cb) => {
+//       cb(null, { fieldName: file.fieldname });
+//     }, 
+//     key: (req, file, cb) => {
+//       cb(null, path.parse(file.originalname).name + "_" +Date.now().toString()  + path.extname(file.originalname));
+//     }
+//   })
+// });
 
+// // Định nghĩa endpoint upload
 // app.post('/upload', upload.array('product', 10), (req, res) => {
- 
-//   if(!req.files) {
-//       return res.status(400).send("Error: No files found")
-//   } 
+//   console.log("uploadImage");
+//   res.json({
+//     success: 1,
+//     image_url: req.files.map(image => image.location)
+//   });
+// });
 
-//   const uploadPromises = req.files.map(file => {
-//     const fileName = `${path.parse(file.originalname).name}_${Date.now().toString()}${path.extname(file.originalname)}`;
-//     const blob = firebase.bucket.file(fileName);
+const firebase = require('./firebase')
 
-//     const blobWriter = blob.createWriteStream({
-//         metadata: {
-//             contentType: file.mimetype
-//         }
-//     });
 
-//     return new Promise((resolve, reject) => {
-//         blobWriter.on('error', (err) => {
-//             console.log(err);
-//             reject(err);
-//         });
+const upload = multer({
+  storage: multer.memoryStorage()
+})
 
-//         blobWriter.on('finish', () => {
-//             resolve(fileName);
-//         });
+app.post('/upload', upload.array('product', 10), async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).send('Error: No files found');
+  }
 
-//         blobWriter.end(file.buffer);
-//     });
-// })
+  const uploadPromises = req.files.map((file) => {
+    const fileName = `${path.parse(file.originalname).name}_${Date.now().toString()}${path.extname(file.originalname)}`;
+    const blob = firebase.bucket.file(fileName);
 
-//     console.log(uploadPromises)
-// })
+    const blobWriter = blob.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    return new Promise((resolve, reject) => {
+      blobWriter.on('error', (err) => {
+        console.error(err);
+        reject(err);
+      });
+
+      blobWriter.on('finish', async () => {
+        // Thiết lập quyền truy cập công khai
+        await blob.makePublic();
+        
+        const publicUrl = `https://storage.googleapis.com/${firebase.bucket.name}/${blob.name}`;
+        resolve(publicUrl);
+      });
+
+      blobWriter.end(file.buffer);
+    });
+  });
+
+  try {
+    const imageUrls = await Promise.all(uploadPromises);
+    res.json({
+      success: 1,
+      image_url: imageUrls,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Upload failed.');
+  }
+});
 
 
 
@@ -158,6 +170,18 @@ const Category = mongoose.model("Categorys", {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // add image 
 app.get("/allimages", async (req, res) =>{
   let product = await Product.find({}, {image:1, _id:0});
@@ -167,17 +191,39 @@ app.get("/allimages", async (req, res) =>{
   res.send(images.flat())
 })
 
+
+
 // findbyImage
-app.get("/1", async (req, res) =>{
-  
-  let urlImage = [
-    "https://shopclothes.s3.ap-southeast-1.amazonaws.com/1726568158233.jpg",
-    "https://shopclothes.s3.ap-southeast-1.amazonaws.com/1726568149866.png"
-  ]
-  let product = await Product.find({ image: { $elemMatch: { $in: urlImage } } })
-  console.log(product)
-  res.send(product)
+app.post("/findproductbyimg", async (req, res) =>{
+  console.log(req.body.images)
+  let product = await Product.distinct("_id", {image: { $in : req.body.images}})
+  let product2 = await Product.find({_id: {$in: product}})
+  res.send(product2)
 })
+
+
+app.get("/allimages/detect", async (req, res) =>{
+  
+  let categorys = req.body.category
+  let gender = req.body.gender
+  let data = await Product.find({ category: {$in : categorys }, sex: gender }, {image:1, _id:0});
+  data.reverse.map((item)=>console.log(item))
+  const transformedData = data.flatMap(item =>
+    item.image.map(url => ({[url.split("/").pop()] : url}))
+  );
+  console.log("/api/allimages/detect")
+  res.send(transformedData)
+})
+
+
+
+
+
+
+
+
+
+
 
 
 
