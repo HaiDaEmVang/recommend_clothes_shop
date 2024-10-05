@@ -10,7 +10,7 @@ const ShopContextProvider = (props) => {
   const getDefaultCart = () => {
     let cart = {};
     cart[1]=0;
-    return cart;
+    return cart; 
   };
 
   const [cartItems, setCartItems] = useState(getDefaultCart());
@@ -50,6 +50,7 @@ const ShopContextProvider = (props) => {
   };
 
   const getTotalCartItems = () => {
+    
     let totalItem = 0;
     const keys = Object.keys(cartItems);
     keys.forEach(item => {
@@ -68,8 +69,12 @@ const ShopContextProvider = (props) => {
       alert("Please Login");
       return;
     }
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    console.log(cartItems)
+    setCartItems((prev) => {
+      if(prev[itemId] === undefined || prev[itemId] === null)
+        return { ...prev, [itemId]: 1 }
+      else
+       return { ...prev, [itemId]: prev[itemId] + 1 }
+    });
     if (localStorage.getItem("auth-token")) {
       fetch(`${backend_url}/addtocart`, {
         method: 'POST',
@@ -81,6 +86,7 @@ const ShopContextProvider = (props) => {
         body: JSON.stringify({ "itemId": itemId }),
       })
     }
+    alert("Add product to cart success")
   };
 
   const removeFromCart = (itemId) => {

@@ -31,6 +31,20 @@ function App() {
     });
     AOS.refresh();
 
+    const clearLocalStorage = () => {
+      console.log("Clearing localStorage"); // Kiểm tra xem hàm có được gọi không
+      localStorage.removeItem("product-recommented");
+      localStorage.removeItem("categorys-recommented");
+      localStorage.removeItem("menu")
+    };
+
+    window.addEventListener('beforeunload', clearLocalStorage);
+
+    // Cleanup
+    return () => {
+      clearLocalStorage(); // Gọi hàm xóa khi component unmount
+      window.removeEventListener('beforeunload', clearLocalStorage);
+    };
   }, []);
 
   return (

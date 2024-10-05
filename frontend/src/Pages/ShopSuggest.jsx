@@ -6,21 +6,20 @@ import Item from "../Components/Item/Item";
 import { Camera } from "../Components/Camera/Camera";
 import { useEffect } from "react";
 import { FiChevronsLeft } from "react-icons/fi";
-import { FourSquare } from "react-loading-indicators"
+import { FourSquare  } from "react-loading-indicators"
 
 export const ShopSuggest = () => {
   const [showCam, setShowCam] = useState(false);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(
+    localStorage.getItem("product-recommented")  ? JSON.parse(localStorage.getItem("product-recommented")) : []
+  );
   const [currentData, setCurrentData] = useState([]);
-  const [categoryList, setCategoryList] = useState(["Full products"]);
+  const [categoryList, setCategoryList] = useState(
+    localStorage.getItem("categorys-recommented") ? JSON.parse(localStorage.getItem("categorys-recommented")) : ["Full products"]);
   const [category, setCategory] = useState("Full products");
   const filteredData = useMemo(() => {
     if (products == null) return [];
-    return products
-      .slice(0, 10)
-      .filter((item) =>
-        category === "Full products" ? true : item.category === category
-      );
+    return products.filter((item) => category === "Full products" ? true : item.category === category);
   }, [products, category]);
 
   useEffect(() => {
@@ -34,6 +33,7 @@ export const ShopSuggest = () => {
           show={showCam}
           setProducts={setProducts}
           setCategoryList={setCategoryList}
+          categoryList={categoryList}
         />
         <div
           className={`w-full ml-10 transition-all duration-700 rounded-2xl shadow-2xl py-4 px-5 overflow-hidden relative  ${
@@ -43,12 +43,10 @@ export const ShopSuggest = () => {
           <div className={`absolute bottom-1/2 right-1/2 transform translate-x-1/2 translate-y-1/2 z-30 ${currentData.length > 0 ? "hidden" : "block"}`}>
             <FourSquare color="#FF4141" size="medium" text="" textColor="" />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <h1
-              className={`text-xl font-poppins text-[#626262] border-b-[3px] border-[#FF4141] inline-block mb-3 pb-2 `}
-            >
-              Sản phẩm gợi ý
-            </h1>
+              className={`text-xl font-poppins text-[#626262] border-b-[3px] border-[#FF4141] inline-block  pb-2 `}
+            >suggested products</h1>
             <div className="flex items-center">
               <div
                 className="group px-5 py-2 min-w-[170px] rounded-full border-black border-[1px] flex items-center 
@@ -56,7 +54,7 @@ export const ShopSuggest = () => {
               duration-200 shadow-md inset-0 after:content-[''] after:block after:w-full after:h-full after:absolute 
               after:top-1/2 after:left-0 mr-4 z-30"
               >
-                <p className="group-hover:text-white">{category}</p>
+                <p className="group-hover:text-white min-w-32">{category}</p>
                 <FiChevronsLeft className="ml-3 group-hover:-rotate-90 transition-all duration-200 text-lg group-hover:text-white" />
                 <div className="absolute left-0 right-0 top-full p-2 rounded-lg mt-1 bg-white shadow-xl overflow-hidden hidden group-hover:block">
                   <ul>
@@ -94,9 +92,10 @@ export const ShopSuggest = () => {
               {currentData.map((item, i) => {
                 return (
                   <Item
-                    classs={"max-h-[450px]"}
+                    cart={true}
+                    classs={"max-h-[400px] transition-all duration-200"}
                     delay={i * 200}
-                    offset={-1000}
+                    offset={-9999}
                     id={item._id}
                     key={i}
                     name={item.name}

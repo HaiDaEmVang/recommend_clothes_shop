@@ -5,8 +5,8 @@ import { FaCameraRetro } from "react-icons/fa";
 import { MdDriveFolderUpload } from "react-icons/md";
 import { FaCameraRotate } from "react-icons/fa6";
 import { backend_url } from "../../App";
-
-export const Camera = ({ show, setProducts, setCategoryList }) => {
+// import { ThreeDot } from "react-loading-indicators"
+export const Camera = ({ show, setProducts, setCategoryList, categoryList }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -38,6 +38,15 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
     };
   }, []);
 
+  useEffect(()=>{
+    if(error.message === "Please wait a minute")
+      return 
+    const timer = setTimeout(()=>{
+      setError({"message": ""})
+    }, 5000)
+    return ()=> clearTimeout(timer);
+  }, [error.message])
+
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext("2d");
@@ -53,7 +62,8 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
 
   const fetchApi = async ()=>{
     try{
-      // setError({"message": "Vui lòng đợi trong giây lát..."})
+      setError({"message": "Please wait a minute"})
+      setProducts([])
       const formData = new FormData();
       formData.append("file", dataImage);
       setDataImage(false)
@@ -63,13 +73,13 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
       })
       if(!res.ok) return setError("Server not response")
       const data = await res.json();
-      
-      console.log(data)
-
-      if(!data.status)
-        return setError(data.message)
+      if(!data.status){
+        console.log(data.message)
+        return setError({"message": "Please choose the image other than"})
+      }
 
       setCategoryList([ "Full products", ...data.dataRes[0].categorys])
+      localStorage.setItem("categorys-recommented", JSON.stringify([ "Full products", ...data.dataRes[0].categorys]))
 
       const res_product = await fetch(`${backend_url}/findproductbyimg`,{
         method: 'POST', // Sử dụng POST
@@ -82,9 +92,10 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
       })
 
       const res_product_result = await res_product.json();
-      console.log(res_product_result)
+      
+      localStorage.setItem("product-recommented", JSON.stringify(res_product_result))
       setProducts(res_product_result)
-
+      setError({"message": ""})
     }catch(e){
       console.log(e)
       setError({"message": "Not connect model api yolo"})
@@ -103,8 +114,11 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
     let input = document.getElementById("uploadImage");
     
     input.addEventListener("change", (e)=>{
-      if(e.target.files[0] !== null)
+      if(e.target.files[0] !== null){
         setDataImage(e.target.files[0]);
+        input.value = '';
+      }
+        
     })
     input.click();
   }
@@ -123,7 +137,7 @@ export const Camera = ({ show, setProducts, setCategoryList }) => {
         <button onClick={()=> uploadFile()} className="p-3 rounded-full bg-white/40  cursor-pointer hover:bg-white/60"><MdDriveFolderUpload  className="text-2xl text-black"/></button>
       </div>
       <input type="file" name="uploadImage" id="uploadImage" className="hidden" />
-      <h2 className={`absolute bottom-1/2 right-1/2 transform translate-x-1/2 translate-y-1/2 z-30 min-w-[100px] px-4 py-2 text-xl bg-gray-300 text-white text-center rounded-md bg-opacity-30 transition-all duration-200 ${error.message === "" ? "hidden": "inline-block"}`}>{error.message}</h2>
+      <h2 className={`absolute bottom-1/2 right-1/2 transform translate-x-1/2 translate-y-1/2 z-30 min-w-[100px] text-nowrap px-4 py-2 text-xl bg-gray-300 text-white text-center rounded-md bg-opacity-30 transition-all duration-200 ${error.message === "" ? "hidden": "inline-block"}`}>{error.message}</h2>
     </div>
   );
 };

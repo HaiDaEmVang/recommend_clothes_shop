@@ -11,8 +11,8 @@ const AddProduct = () => {
     name: "",
     description: "",
     image: [],
-    sex: "women",
-    category: "Short",
+    sex: "FEMALE",
+    category: "SHORT",
     new_price: "",
     old_price: ""
   });
@@ -80,20 +80,20 @@ const AddProduct = () => {
       </div>
       <div className="addproduct-itemfield">
         <p>Gender</p>
-        <select value={productDetails.sex} name="sex" className="add-product-selector" onChange={changeHandler}>
+        <select value={productDetails.sex} name="sex" className="add-product-selector" onChange={(e)=>changeHandler(e)}>
           <option value="FEMALE">Women</option>
           <option value="MALE">Men</option>
         </select>
       </div>
       <div className="addproduct-itemfield">
         <p>Product category</p>
-        <select value={productDetails.category} name="category" className="add-product-selector" onChange={changeHandler}>
+        <select value={productDetails.category} name="category" className="add-product-selector" onChange={(e)=>changeHandler(e)}>
           <option value="SHORT">Short</option>
           <option value="BAG">Bag</option>
           <option value="SHOES">Shoes</option>
           <option value="SHIRT">Shirt</option>
-          <option value="WATCH">Watch</option>
           <option value="PANTS">Pants</option>
+          <option value="HEADWEAR">Headwear</option>
         </select>
       </div>
       <div className="addproduct-itemfield">

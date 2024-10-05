@@ -1,9 +1,12 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 import "./Item.css";
 import { Link } from "react-router-dom";
+import { MdOutlineShoppingCart } from "react-icons/md";
 import { currency } from "../../App";
+import { ShopContext } from '../../Context/ShopContext'
 
 const Item = memo((props) => {
+  const { addToCart } = useContext(ShopContext);
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -15,8 +18,9 @@ const Item = memo((props) => {
       data-aos="fade-up"
       data-aos-delay={props.delay}
       data-aos-offset={props.offset}
-      className={`item group shadow-xl rounded-xl p-2 cursor-pointer group ${props.classs}`}
+      className={`item group shadow-xl rounded-xl p-2 cursor-pointer group relative ${props.classs}`}
     >
+      {props.cart && <button className={`rounded-lg bg-[#EB423F]/80  hover:bg-[#EB423F]/90 text-white transition duration-200 absolute top-3 right-4 z-30 p-1 hidden group-hover:block `} onClick={() => addToCart(props.id)}><MdOutlineShoppingCart className="text-[24px]"/></button>}
       <Link className="flex flex-col h-full duration-200 transition-all"  to={"/product/" + props.id} onClick={()=> handleScrollToTop()}>
         <div className="rounded-md overflow-hidden h-full w-full">
           <img

@@ -47,8 +47,8 @@ const ShopCategory = (props) => {
   const handlePageChange = (selectedPage) => {
     let startIndex = selectedPage.selected * itemsPerPage;
     setIndexShow(startIndex);
-    const endIndex = Math.min(products.length, startIndex + itemsPerPage);
-    setCurrentDataView(products.slice(startIndex, endIndex));
+    const endIndex = Math.min(currentData.length, startIndex + itemsPerPage);
+    setCurrentDataView(currentData.slice(startIndex, endIndex));
     Aos.refresh();
   };
 
@@ -60,14 +60,14 @@ const ShopCategory = (props) => {
       <div className="shopcategory-indexSort flex items-center">
         <p>
           <span>
-            Showing {indexShow + 1 } - {Math.min(products.length, indexShow + itemsPerPage)}
+            Showing {indexShow + 1 } - {Math.min(currentData.length, indexShow + itemsPerPage)}
           </span>{" "}
           out of {currentData.length} Products
         </p>
         <ReactPaginate
         nextLabel={<FaChevronRight />} // Thay thế bằng icon
         onPageChange={handlePageChange}
-        pageCount={Math.ceil(products.length / itemsPerPage)}
+        pageCount={Math.ceil(currentData.length / itemsPerPage)}
         previousLabel={<FaChevronLeft />} // Thay thế bằng icon
         renderOnZeroPageCount={null}
         containerClassName="pagination"

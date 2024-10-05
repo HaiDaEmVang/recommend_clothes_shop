@@ -82,7 +82,7 @@ app.post('/upload', upload.array('product', 10), async (req, res) => {
   const uploadPromises = req.files.map((file) => {
     const fileName = `${path.parse(file.originalname).name}_${Date.now().toString()}${path.extname(file.originalname)}`;
     const blob = firebase.bucket.file(fileName);
-
+ 
     const blobWriter = blob.createWriteStream({
       metadata: {
         contentType: file.mimetype,
@@ -201,13 +201,12 @@ app.post("/findproductbyimg", async (req, res) =>{
   res.send(product2)
 })
 
-
+ 
 app.get("/allimages/detect", async (req, res) =>{
   
   let categorys = req.body.category
   let gender = req.body.gender
   let data = await Product.find({ category: {$in : categorys }, sex: gender }, {image:1, _id:0});
-  data.reverse.map((item)=>console.log(item))
   const transformedData = data.flatMap(item =>
     item.image.map(url => ({[url.split("/").pop()] : url}))
   );
@@ -249,7 +248,6 @@ app.post('/login', async (req, res) => {
         }
       }
       success = true;
-      console.log(user.id);
       const token = jwt.sign(data, 'secret_ecom');
       res.json({ success, token });
     }
@@ -333,7 +331,7 @@ app.post("/relatedproducts", async (req, res) => {
 app.post('/addtocart', fetchuser, async (req, res) => {
   console.log("Add Cart");
   let userData = await Users.findOne({ _id: req.user.id });
-  if(isNaN(userData.cartData[req.body.itemId])) 
+  if(isNaN(userData.cartData[req.body.itemId]) || userData.cartData[req.body.itemId] === null || userData.cartData[req.body.itemId] === undefined) 
     userData.cartData[req.body.itemId] = 1;
   else userData.cartData[req.body.itemId]++;
   await Users.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });

@@ -7,9 +7,8 @@ import { ShopContext } from '../../Context/ShopContext'
 import nav_dropdown from '../Assets/nav_dropdown.png'
 
 const Navbar = () => {
-
   let [menu,setMenu] = useState(localStorage.getItem("menu") ? localStorage.getItem("menu"): "shop");
-  const {getTotalCartItems} = useContext(ShopContext);
+  const { getTotalCartItems } = useContext(ShopContext);
  
   const menuRef = useRef();
 
