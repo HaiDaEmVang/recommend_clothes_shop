@@ -195,8 +195,9 @@ app.get("/allimages", async (req, res) =>{
 
 // findbyImage
 app.post("/findproductbyimg", async (req, res) =>{
-  console.log(req.body.images)
-  let product = await Product.distinct("_id", {image: { $in : req.body.images}})
+  // console.log(req.body.images)
+  let data ="/" + req.body.images.map(item => item.replace(".", "\.")).join("|") +"/";
+  let product = await Product.distinct("_id", {image: { $regex : data}})
   let product2 = await Product.find({_id: {$in: product}})
   res.send(product2)
 })
@@ -222,7 +223,6 @@ app.get("/allimages/detect", async (req, res) =>{
       item.image
     );
     console.log("/api/allimages/detect")
-    // console.log(transformedData)
     res.send(transformedData)
   }else 
     res.send([])

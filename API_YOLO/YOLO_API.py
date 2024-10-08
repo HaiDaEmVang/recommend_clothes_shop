@@ -96,7 +96,7 @@ async def detect_gender(file: UploadFile = File(...)):
         cropped_images.append(cropped_image_base64)
 
     if not cropped_images or not categorys:
-        categorys  = []
+        categorys  = ["PANTS", "SHORT", "SHIRT", "SHOES", "BAG", "HEADWEAR"]
     
     try:
         # Gửi yêu cầu tới server bên ngoài
@@ -105,8 +105,8 @@ async def detect_gender(file: UploadFile = File(...)):
         if response.status_code == 200:
             serverResImg = response.json()
             
-            # for img in serverResImg:
-            #     print(img)
+            for img in serverResImg:
+                print(img)
 
             Yolo_result.append({"categorys": categorys, "data": serverResImg})
             return FashionResponse(dataRes=Yolo_result, status=True, message="Success request")

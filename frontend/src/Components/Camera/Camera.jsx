@@ -87,7 +87,7 @@ export const Camera = ({ show, setProducts, setCategoryList, categoryList }) => 
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            images: data.dataRes[0].data.map(item => Object.values(item)[0]),
+            images: data.dataRes[0].data,
         }),
       })
 
