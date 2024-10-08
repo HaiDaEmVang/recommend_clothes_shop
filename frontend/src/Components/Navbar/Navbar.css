@@ -12,6 +12,7 @@
 }
 .nav-logo img{
     width: 45px;
+    transform: scale(2.0);
 }
 .nav-logo p{
     color: #171717;

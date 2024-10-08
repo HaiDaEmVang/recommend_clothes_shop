@@ -206,12 +206,26 @@ app.get("/allimages/detect", async (req, res) =>{
   
   let categorys = req.body.category
   let gender = req.body.gender
-  let data = await Product.find({ category: {$in : categorys }, sex: gender }, {image:1, _id:0});
-  const transformedData = data.flatMap(item =>
-    item.image.map(url => ({[url.split("/").pop()] : url}))
-  );
-  console.log("/api/allimages/detect")
-  res.send(transformedData)
+  let data = []
+  if(categorys.length > 0  && gender !== "" )
+    data = await Product.find({ category: {$in : categorys }, sex: gender }, {image:1, _id:0});
+  else 
+    if( categorys.length > 0 && gender === "")
+      data = await Product.find({ category: {$in : categorys }  }, {image:1, _id:0});
+    else 
+      if( categorys.length < 1 && gender !== "")
+        data  = await Product.find({ sex: gender  }, {image:1, _id:0});
+  
+  let transformedData = []
+  if(data.length > 0){
+    transformedData = data.flatMap(item =>
+      item.image
+    );
+    console.log("/api/allimages/detect")
+    // console.log(transformedData)
+    res.send(transformedData)
+  }else 
+    res.send([])
 })
 
 

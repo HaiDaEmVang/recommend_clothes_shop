@@ -59,10 +59,12 @@ async def detect_gender(file: UploadFile = File(...)):
         result_gender = result_gender[0]
 
     gender_confidence = result_gender['gender']
+    label_gender = ""
     # IF CONFIDENCE < 0.5 => RESPONSE RELOAD NEW IMAGE
-    if max(gender_confidence['Woman'], gender_confidence['Man']) <= 0.6 :
-        return FashionResponse(dataRes=[], status=False, message="Confidence Gender <= 0.6")
-    label_gender = "FEMALE" if gender_confidence['Woman'] > gender_confidence['Man'] else "MALE"
+    if max(gender_confidence['Woman'], gender_confidence['Man']) <= 0.4 :
+        label_gender = ""
+    else:
+        label_gender = "FEMALE" if gender_confidence['Woman'] > gender_confidence['Man'] else "MALE"
     
     #detect-fashion
     results = fashion_model(img)
@@ -94,7 +96,7 @@ async def detect_gender(file: UploadFile = File(...)):
         cropped_images.append(cropped_image_base64)
 
     if not cropped_images or not categorys:
-        return FashionResponse(dataRes=[], status=False, message="Confidence fashion <= 0.6")
+        categorys  = []
     
     try:
         # Gửi yêu cầu tới server bên ngoài
@@ -102,24 +104,29 @@ async def detect_gender(file: UploadFile = File(...)):
         Yolo_result =[] 
         if response.status_code == 200:
             serverResImg = response.json()
-            # goi den model voi du lieu serverResImg la list tên ảnh và url tương ứng
-            # [
-            #      "nameImage": "url",
-            #      "nameImage": "url",
-            #      "....": "..."
-            # ]
-            # trả về kết quả 
-            # Yolo_result = ? gán dữ liệu ds ảnh gợi ý + categorys
-            # cropped_images list các ảnh mà model cắt được
+            
+            # for img in serverResImg:
+            #     print(img)
+
             Yolo_result.append({"categorys": categorys, "data": serverResImg})
             return FashionResponse(dataRes=Yolo_result, status=True, message="Success request")
         else:
             return FashionResponse(dataRes=[], status=False, message="Server not response")
 
     except Exception as e:
-        return FashionResponse(dataRes=[], status=False, message=e)
+        return FashionResponse(dataRes=[], status=False, message="Err")
 
-
+def conver_urlimg_to_base64img(urlImage) :
+    response = requests.get(urlImage)
+    
+    if response.status_code == 200:
+        image_base64 = base64.b64encode(response.content).decode('utf-8')
+        return image_base64
+    else:
+        return None
+        
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("YOLO_API:app", host="127.0.0.1", port=8000, reload=True)
+
+
