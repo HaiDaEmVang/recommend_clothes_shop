@@ -223,6 +223,7 @@ app.get("/allimages/detect", async (req, res) =>{
       item.image
     );
     console.log("/api/allimages/detect")
+    console.log(transformedData)
     res.send(transformedData)
   }else 
     res.send([])
