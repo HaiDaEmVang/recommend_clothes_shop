@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from PIL import Image
@@ -20,57 +21,6 @@ import requests
 import os
 
 
-# Model Image Retrival
-# 1. Load pre-trained model Resnet50
-class FeatureExtractor(nn.Module):
-    def __init__(self):
-        super(FeatureExtractor, self).__init__()
-        resnet = models.resnet50(pretrained=True)
-        self.features = nn.Sequential(*list(resnet.children())[:-1])  # Remove the final classification layer
-
-    def forward(self, x):
-        x = self.features(x)
-        return x.view(x.size(0), -1)  # Flatten
-
-# 2. Function to extract features for a single image
-# def extract_features(image, model, transform):
-#     if image.mode != 'RGB':
-#         image = image.convert('RGB')
-#     image = transform(image).unsqueeze(0)  # Add batch dimension
-#     with torch.no_grad():
-#         features = model(image)
-#     return features.numpy()
-def extract_features(image_base64, model, transform):
-    image_data = base64.b64decode(image_base64)
-    image = Image.open(BytesIO(image_data))
-    
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
-    image = transform(image).unsqueeze(0)  # Thêm chiều batch
-    with torch.no_grad():
-        features = model(image)
-    return features.numpy()
-
-# 3. Transform for input images
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
-def retrieve_top_n_closest_labels(input_features_list, feature_database, labels, N=10):
-    top_n_closest_labels = []
-    for input_features in input_features_list:
-        similarities = cosine_similarity(input_features.reshape(1, -1), feature_database)
-        # Flatten the similarities array and get the indices of the top N closest images
-        top_n_indices = np.argsort(similarities[0])[::-1][:N]
-        # Get the corresponding labels for the top N closest images
-        closest_labels = [labels[i] for i in top_n_indices]
-        top_n_closest_labels.append(closest_labels)
-        print(closest_labels)
-    return top_n_closest_labels
-# Model Image Retrival
-
 # Cấu hình CORS
 origins = [
     "http://localhost:3000",  # Địa chỉ frontend của bạn
@@ -84,7 +34,11 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 # Load model Fashion
-fashion_model = YOLO("C:\\Users\\Anreal\\Desktop\\helloAc\\162925_Full_Stack_Ecommerce\\modelAI\\best.pt")
+
+path_fashion_model = "../modelAI/best.pt" 
+path_label_model = "../modelAI/labels.npy"
+path_saved_features = "../modelAI/saved_features.npy"
+
 class_list = ['BAG', 'DRESS', 'HAT', 'JACKET', 'PANTS', 'SHIRT', 'SHOES', 'SHORT', 'SKIRT', 'SUNGLASS', 'HEADWEAR']
 url_Images = "http://localhost:4000/allimages/detect"
 nameImage_list = []
@@ -94,6 +48,57 @@ class FashionResponse(BaseModel):
     dataRes: List[dict]
     status: bool
     message: str
+
+
+# Model Image Retrival
+# 1. Load pre-trained model Resnet50
+class FeatureExtractor(nn.Module):
+    def __init__(self):
+        super(FeatureExtractor, self).__init__()
+        resnet = models.resnet50(pretrained=True)
+        self.features = nn.Sequential(*list(resnet.children())[:-1])  # Remove the final classification layer
+
+    def forward(self, x):
+        x = self.features(x)
+        return x.view(x.size(0), -1)  # Flatten
+
+# 2. Function to extract features for a single image
+def extract_features(image, model, transform):
+    if isinstance(image, np.ndarray):
+        image = Image.fromarray(image)
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    image = transform(image).unsqueeze(0)  # Add batch dimension
+    with torch.no_grad():
+        features = model(image)
+    return features.numpy()
+
+# 3. Transform for input images
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+def retrieve_top_n_closest_labels(input_features_list, feature_database, labels, N=10):
+    top_n_closest_labels = []
+    feature_database = np.array(feature_database)
+    # Duyệt qua từng vector đầu vào
+    for input_features in input_features_list:
+        input_features = np.array(input_features)
+        if input_features.ndim == 1:
+            input_features_reshaped = input_features.reshape(1, -1)
+        else:
+            input_features_reshaped = input_features 
+        # Tính độ tương đồng cosine với toàn bộ cơ sở dữ liệu
+        similarities = cosine_similarity(input_features_reshaped, feature_database)
+        # Lấy chỉ số của N đặc trưng gần nhất
+        top_n_indices = np.argsort(similarities[0])[::-1][:N]
+        closest_labels = [labels[i] for i in top_n_indices]
+        top_n_closest_labels.append(closest_labels)
+
+    return top_n_closest_labels
+# Model Image Retrival
 
 def load_image_into_numpy_array(data):
     image = Image.open(BytesIO(data))
@@ -114,6 +119,8 @@ def get_formatted_filename(url):
 
 @app.post("/api-detect", response_model=FashionResponse)
 async def detect_gender(file: UploadFile = File(...)):
+
+    
     #detect-gender
     try:
         img = load_image_into_numpy_array(await file.read())
@@ -134,6 +141,7 @@ async def detect_gender(file: UploadFile = File(...)):
         label_gender = "FEMALE" if gender_confidence['Woman'] > gender_confidence['Man'] else "MALE"
     
     #detect-fashion
+    fashion_model = YOLO(path_fashion_model)
     results = fashion_model(img)
     # detection information
     result_fashion = results[0]
@@ -155,15 +163,10 @@ async def detect_gender(file: UploadFile = File(...)):
 
         # Crop images
         cropped_img = img[ymin:ymax, xmin:xmax]
-        _, encoded_img = cv2.imencode('.jpg', cropped_img)
-        cropped_image_bytes = encoded_img.tobytes()
-
-        cropped_image_base64 = base64.b64encode(cropped_image_bytes).decode('utf-8')
-
-        cropped_images.append(cropped_image_base64)
+        cropped_images.append(cropped_img)
 
     if not cropped_images or not categorys:
-        categorys  = ["PANTS", "SHORT", "SHIRT", "SHOES", "BAG", "HEADWEAR"]
+        categorys  = []
 
     
     try:
@@ -172,33 +175,35 @@ async def detect_gender(file: UploadFile = File(...)):
         Yolo_result =[] 
         if response.status_code == 200:
             serverResImg = response.json()
-
+            if not serverResImg:
+                return FashionResponse(dataRes=[], status=False, message="Not found proudct match")
             #image retrival
             model = FeatureExtractor()
             model.eval()
-            data = np.load("C:\\Users\\Anreal\\Desktop\\helloAc\\162925_Full_Stack_Ecommerce\\modelAI\\labels.npy")
-            labels = np.load("C:\\Users\\Anreal\\Desktop\\helloAc\\162925_Full_Stack_Ecommerce\\modelAI\\saved_features.npy")
+            data = np.load(path_saved_features)
+            labels = np.load(path_label_model)
             i=0
             vector=[]
             vector_name=[]
             for url in serverResImg:
                 formatted_filename = get_formatted_filename(url)
-                print(labels)
                 if formatted_filename in labels:
                     index = np.where(labels == formatted_filename)[0][0]  # Get the index of the label
                     vector.append(data[index, :])
                     vector_name.append(formatted_filename)
-
             input_features_list = []
             for image in cropped_images:
                 input_features = extract_features(image, model, transform)
                 input_features_list.append(input_features)
-            
             top_n_closest_labels = retrieve_top_n_closest_labels(input_features_list, vector,vector_name)
-            # top_n_closest_labels = retrieve_top_n_closest_labels(input_features_list, data, labels)
             #image retrival
 
-            Yolo_result.append({"categorys": categorys, "data": top_n_closest_labels})
+
+            if not categorys  : 
+                categorys = ["PANTS", "SHORT", "SHIRT", "SHOES", "BAG", "HEADWEAR"]
+                for url in serverResImg:
+                    top_n_closest_labels.append(get_formatted_filename(url))
+            Yolo_result.append({"categorys": categorys, "gender": label_gender , "data": top_n_closest_labels})
             return FashionResponse(dataRes=Yolo_result, status=True, message="Success request")
         else:
             return FashionResponse(dataRes=[], status=False, message="Server not response")
@@ -207,15 +212,6 @@ async def detect_gender(file: UploadFile = File(...)):
         print(e)
         return FashionResponse(dataRes=[], status=False, message=str(e))
 
-def conver_urlimg_to_base64img(urlImage) :
-    response = requests.get(urlImage)
-    
-    if response.status_code == 200:
-        image_base64 = base64.b64encode(response.content).decode('utf-8')
-        return image_base64
-    else:
-        return None
-        
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("YOLO_API:app", host="127.0.0.1", port=8000, reload=True)

@@ -9,7 +9,6 @@ import { backend_url } from "../../App";
 export const Camera = ({ show, setProducts, setCategoryList, categoryList }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [isCapturing, setIsCapturing] = useState(false);
   const [dataImage, setDataImage] = useState(false);
   const [error, setError] = useState({
     "message": ""
@@ -72,27 +71,25 @@ export const Camera = ({ show, setProducts, setCategoryList, categoryList }) => 
         body: formData,
       })
       if(!res.ok) return setError("Server not response")
-      const data = await res.json();
+        const data = await res.json();
       if(!data.status){
         console.log(data.message)
         return setError({"message": "Please choose the image other than"})
       }
-
       setCategoryList([ "Full products", ...data.dataRes[0].categorys])
       localStorage.setItem("categorys-recommented", JSON.stringify([ "Full products", ...data.dataRes[0].categorys]))
-
       const res_product = await fetch(`${backend_url}/findproductbyimg`,{
         method: 'POST', // Sử dụng POST
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            images: data.dataRes[0].data,
+            images: data.dataRes[0].data.flat().map(item => item.split('.')[0]),
+            gender: data.dataRes[0].gender
         }),
       })
 
       const res_product_result = await res_product.json();
-      
       localStorage.setItem("product-recommented", JSON.stringify(res_product_result))
       setProducts(res_product_result)
       setError({"message": ""})

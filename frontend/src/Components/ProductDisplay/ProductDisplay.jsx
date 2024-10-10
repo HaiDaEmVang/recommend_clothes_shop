@@ -69,10 +69,10 @@ const ProductDisplay = ({ product }) => {
         </div>
         <button className="rounded-lg hover:bg-[#EB423F]/80 hover:text-white transition duration-200" onClick={() => addToCart(product._id)}>ADD TO CART</button>
         <p className="productdisplay-right-category">
-          <span>Category :</span> Women, T-shirt, Crop Top
+          <span>Category :</span> {product.category}
         </p>
         <p className="productdisplay-right-category">
-          <span>Tags :</span> Modern, Latest
+          <span>Tags :</span> {product.sex === "MALE" ? "Man": "Women"}
         </p>
       </div>
     </div>
